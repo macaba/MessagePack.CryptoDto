@@ -246,21 +246,31 @@ namespace MessagePack.CryptoDto
 
                             ReadOnlySpan<byte> macBuffer = bytes.Slice(payloadLength, bytes.Length - payloadLength);
                             byte[] receiveKey = channel.GetReceiveKey();
-                            Poly1305.VerifyMac(receiveKey, payloadBuffer.ToArray(), macBuffer.ToArray());
+
+                            using (HMACSHA256 hmac = new HMACSHA256(receiveKey))
+                            {
+                                var hash = hmac.ComputeHash(payloadBuffer.ToArray());
+
+                                if (!NaCl.Core.Internal.CryptoBytes.ConstantTimeEquals(hash, macBuffer.ToArray()))
+                                    throw new CryptoDtoException("Packet failed hash test.");
+                            }
 
                             channel.CheckReceivedSequence(header.Sequence);     //The packet has passed MAC, so now check if it's being duplicated or replayed
                             break;
                         }
                     case CryptoDtoMode.AEAD_ChaCha20Poly1305:
                         {
+                            int aeLength = bytes.Length - (2 + headerLength);
+                            ReadOnlySpan<byte> aePayloadBuffer = bytes.Slice(2 + headerLength, aeLength);
+
+                            ReadOnlySpan<byte> adBuffer = bytes.Slice(0, 2 + headerLength);
+
                             var nonceBuffer = new byte[12];
                             Array.Copy(BitConverter.GetBytes(header.Sequence), 0, nonceBuffer, 0, 4);
 
-                            ReadOnlySpan<byte> encryptedPayload = bytes.Slice(2 + headerLength, bytes.Length - headerLength);
-
                             byte[] receiveKey = channel.GetReceiveKey();
                             var aead = new ChaCha20Poly1305(receiveKey);
-                            ReadOnlySpan<byte> decryptedPayload = aead.Decrypt(encryptedPayload.ToArray(), headerBuffer.ToArray(), nonceBuffer);
+                            ReadOnlySpan<byte> decryptedPayload = aead.Decrypt(aePayloadBuffer.ToArray(), adBuffer.ToArray(), nonceBuffer);
 
                             channel.CheckReceivedSequence(header.Sequence);     //The packet has passed MAC, so now check if it's being duplicated or replayed
 
