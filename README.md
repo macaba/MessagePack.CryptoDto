@@ -17,3 +17,7 @@ HMAC mode:
 * For clear but authenticated messages (using HMACSHA256)
 
 There is protection against duplication and replay attacks.
+
+## Packet Format
+
+![Packet Format](https://github.com/macaba/MessagePack.CryptoDto/blob/master/Documentation/Packet%20Format.png)
