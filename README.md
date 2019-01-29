@@ -15,3 +15,5 @@ AEAD mode:
 
 HMAC mode:
 * For clear but authenticated messages (using HMACSHA256)
+
+There is protection against duplication and replay attacks.
