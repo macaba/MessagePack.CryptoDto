@@ -14,14 +14,23 @@ namespace MessagePack.CryptoDto
             channelStore = new Dictionary<string, CryptoDtoChannel>();
         }
 
-        //This returns the Remote Endpoint Channel Config
-        public CryptoDtoChannelConfigDto CreateChannel(string channelTag, int receiveSequenceHistorySize = 10)
+        public void CreateChannel(string channelTag, int receiveSequenceHistorySize = 10)
         {
             lock (channelStoreLock)
             {
                 if (channelStore.ContainsKey(channelTag))
                     throw new CryptoDtoException("Key tag already exists in store.");
                 channelStore[channelTag] = new CryptoDtoChannel(channelTag, receiveSequenceHistorySize);
+            }
+        }
+
+        public CryptoDtoChannelConfigDto GetRemoteEndpointChannelConfig(string channelTag)
+        {
+            lock (channelStoreLock)
+            {
+                if (!channelStore.ContainsKey(channelTag))
+                    throw new CryptoDtoException("Key tag does not exist in store.");
+
                 return channelStore[channelTag].GetRemoteEndpointChannelConfig();
             }
         }
