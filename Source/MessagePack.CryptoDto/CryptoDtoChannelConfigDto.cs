@@ -1,5 +1,6 @@
 ﻿namespace MessagePack.CryptoDto
 {
+    //This should be exchanged from server to client [using serverChannel.GetRemoteEndpointChannelConfig()] over a secure transport like a HTTPS REST API
     [MessagePackObject]
     public class CryptoDtoChannelConfigDto
     {
