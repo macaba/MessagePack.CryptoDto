@@ -1,28 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NaCl.Core.Base;
+using System;
 using System.Linq;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace MessagePack.CryptoDto
 {
     public class CryptoDtoChannel
     {
-        private readonly byte[] transmitKey;
+        private readonly byte[] aeadTransmitKey;
         private uint transmitSequence;
 
-        private readonly byte[] receiveKey;
+        private readonly byte[] aeadReceiveKey;
 
         private uint[] receiveSequenceHistory;
         private int receiveSequenceHistoryDepth;
         private int receiveSequenceSizeMaxSize;
 
-        public string ChannelTag { get; private set; }
+        private readonly byte[] hmacKey;
 
-        public CryptoDtoChannel(string channelTag, byte[] transmitKey, byte[] receiveKey, int receiveSequenceHistorySize = 10)
+        public string ChannelTag { get; private set; }
+        public DateTime LastTransmitUtc { get; private set; }
+        public DateTime LastReceiveUtc { get; private set; }
+
+        public CryptoDtoChannel(string channelTag, int receiveSequenceHistorySize = 10)
         {
             ChannelTag = channelTag;
-            this.transmitKey = transmitKey;
-            this.receiveKey = receiveKey;
+
+            RNGCryptoServiceProvider rnd = new RNGCryptoServiceProvider();
+
+            aeadReceiveKey = new byte[Snuffle.KEY_SIZE_IN_BYTES];
+            rnd.GetBytes(aeadReceiveKey);
+
+            aeadTransmitKey = new byte[Snuffle.KEY_SIZE_IN_BYTES];
+            rnd.GetBytes(aeadTransmitKey);
+
+            hmacKey = new byte[64];
+            rnd.GetBytes(hmacKey);
+
             transmitSequence = 0;
             receiveSequenceSizeMaxSize = receiveSequenceHistorySize;
             if (receiveSequenceSizeMaxSize < 1)
@@ -31,9 +45,43 @@ namespace MessagePack.CryptoDto
             receiveSequenceHistoryDepth = 0;
         }
 
-        public byte[] GetReceiveKey()
+        public CryptoDtoChannel(CryptoDtoChannelConfigDto channelConfig, int receiveSequenceHistorySize = 10)
         {
-            return receiveKey;
+            ChannelTag = channelConfig.ChannelTag;
+            aeadReceiveKey = channelConfig.AeadReceiveKey;
+            aeadTransmitKey = channelConfig.AeadTransmitKey;
+            hmacKey = channelConfig.HmacKey;
+
+            transmitSequence = 0;
+            receiveSequenceSizeMaxSize = receiveSequenceHistorySize;
+            if (receiveSequenceSizeMaxSize < 1)
+                receiveSequenceSizeMaxSize = 1;
+            receiveSequenceHistory = new uint[receiveSequenceSizeMaxSize];
+            receiveSequenceHistoryDepth = 0;
+        }
+
+        public CryptoDtoChannelConfigDto GetRemoteEndpointChannelConfig()
+        {
+            return new CryptoDtoChannelConfigDto()
+            {
+                ChannelTag = string.Copy(ChannelTag),
+                AeadReceiveKey = aeadTransmitKey.ToArray(),
+                AeadTransmitKey = aeadReceiveKey.ToArray(),     //Swap the order for the remote endpoint
+                HmacKey = hmacKey.ToArray()
+            };
+        }
+
+        public byte[] GetReceiveKey(CryptoDtoMode mode)
+        {
+            switch (mode)
+            {
+                case CryptoDtoMode.AEAD_ChaCha20Poly1305:
+                    return aeadReceiveKey;
+                case CryptoDtoMode.HMAC_SHA256:
+                    return hmacKey;
+                default:
+                    throw new CryptoDtoException("CryptoDtoMode value not handled.");
+            }
         }
 
         public void CheckReceivedSequence(uint sequenceReceived)
@@ -53,14 +101,26 @@ namespace MessagePack.CryptoDto
                 if (sequenceReceived < minValue)
                     throw new CryptoDtoException("Received sequence is too old.");              // Possible replay attack
                 receiveSequenceHistory[minIndex] = sequenceReceived;
-            }            
+            }
+
+            LastReceiveUtc = DateTime.UtcNow;
         }
 
-        public byte[] GetTransmitKey(out uint sequenceToSend)
+        public byte[] GetTransmitKey(CryptoDtoMode mode, out uint sequenceToSend)
         {
             sequenceToSend = transmitSequence;
             transmitSequence++;
-            return transmitKey;
+            LastTransmitUtc = DateTime.UtcNow;
+
+            switch (mode)
+            {
+                case CryptoDtoMode.AEAD_ChaCha20Poly1305:
+                    return aeadTransmitKey;
+                case CryptoDtoMode.HMAC_SHA256:
+                    return hmacKey;
+                default:
+                    throw new CryptoDtoException("CryptoDtoMode value not handled.");
+            }
         }
 
         private bool Contains(uint sequence)

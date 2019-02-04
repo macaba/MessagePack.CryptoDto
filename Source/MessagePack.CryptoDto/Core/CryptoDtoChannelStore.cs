@@ -14,24 +14,25 @@ namespace MessagePack.CryptoDto
             channelStore = new Dictionary<string, CryptoDtoChannel>();
         }
 
-        public void AddChannel(string channelTag, byte[] transmitKey, byte[] receiveKey, int receiveSequenceHistorySize = 10)
+        public CryptoDtoChannel CreateChannel(string channelTag, int receiveSequenceHistorySize = 10)
         {
             lock (channelStoreLock)
             {
                 if (channelStore.ContainsKey(channelTag))
                     throw new CryptoDtoException("Key tag already exists in store.");
-                channelStore[channelTag] = new CryptoDtoChannel(channelTag, transmitKey, receiveKey, receiveSequenceHistorySize);
+                channelStore[channelTag] = new CryptoDtoChannel(channelTag, receiveSequenceHistorySize);
+                return channelStore[channelTag];
             }
         }
 
-        public byte[] GetReceiveKey(string channelTag)
+        public byte[] GetReceiveKey(string channelTag, CryptoDtoMode mode)
         {
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
                     throw new CryptoDtoException("Key tag does not exist in store.");
 
-                return channelStore[channelTag].GetReceiveKey();
+                return channelStore[channelTag].GetReceiveKey(mode);
             }
         }
 
@@ -46,14 +47,14 @@ namespace MessagePack.CryptoDto
             }
         }
 
-        public byte[] GetTransmitKey(string channelTag, out uint transmitSequence)
+        public byte[] GetTransmitKey(string channelTag, CryptoDtoMode mode, out uint transmitSequence)
         {
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
                     throw new CryptoDtoException("Key tag does not exist in store.");
 
-                return channelStore[channelTag].GetTransmitKey(out transmitSequence);
+                return channelStore[channelTag].GetTransmitKey(mode, out transmitSequence);
             }
         }
 

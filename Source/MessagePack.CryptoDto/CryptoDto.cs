@@ -12,13 +12,13 @@ namespace MessagePack.CryptoDto
     {
         public static byte[] Serialize<T>(CryptoDtoChannelStore channelStore, string channelTag, CryptoDtoMode mode, T obj)
         {
-            var transmitKey = channelStore.GetTransmitKey(channelTag, out uint sequenceToSend);
+            var transmitKey = channelStore.GetTransmitKey(channelTag, mode, out uint sequenceToSend);
             return Serialise(channelTag, mode, transmitKey, sequenceToSend, obj);
         }
 
         public static byte[] Serialize<T>(CryptoDtoChannel channel, CryptoDtoMode mode, T obj)
         {
-            var transmitKey = channel.GetTransmitKey(out uint sequenceToSend);
+            var transmitKey = channel.GetTransmitKey(mode, out uint sequenceToSend);
             return Serialise(channel.ChannelTag, mode, transmitKey, sequenceToSend, obj);
         }
 
@@ -181,7 +181,7 @@ namespace MessagePack.CryptoDto
                             ReadOnlySpan<byte> payloadBuffer = bytes.Slice(0, payloadLength);
 
                             ReadOnlySpan<byte> macBuffer = bytes.Slice(payloadLength, bytes.Length - payloadLength);
-                            byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag);
+                            byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag, header.Mode);
 
                             using (HMACSHA256 hmac = new HMACSHA256(receiveKey))
                             {
@@ -204,7 +204,7 @@ namespace MessagePack.CryptoDto
                             var nonceBuffer = new byte[12];
                             Array.Copy(BitConverter.GetBytes(header.Sequence), 0, nonceBuffer, 0, 4);
 
-                            byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag);
+                            byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag, header.Mode);
                             var aead = new ChaCha20Poly1305(receiveKey);
                             ReadOnlySpan<byte> decryptedPayload = aead.Decrypt(aePayloadBuffer.ToArray(), adBuffer.ToArray(), nonceBuffer);
 
@@ -245,7 +245,7 @@ namespace MessagePack.CryptoDto
                             ReadOnlySpan<byte> payloadBuffer = bytes.Slice(0, payloadLength);
 
                             ReadOnlySpan<byte> macBuffer = bytes.Slice(payloadLength, bytes.Length - payloadLength);
-                            byte[] receiveKey = channel.GetReceiveKey();
+                            byte[] receiveKey = channel.GetReceiveKey(header.Mode);
 
                             using (HMACSHA256 hmac = new HMACSHA256(receiveKey))
                             {
@@ -268,7 +268,7 @@ namespace MessagePack.CryptoDto
                             var nonceBuffer = new byte[12];
                             Array.Copy(BitConverter.GetBytes(header.Sequence), 0, nonceBuffer, 0, 4);
 
-                            byte[] receiveKey = channel.GetReceiveKey();
+                            byte[] receiveKey = channel.GetReceiveKey(header.Mode);
                             var aead = new ChaCha20Poly1305(receiveKey);
                             ReadOnlySpan<byte> decryptedPayload = aead.Decrypt(aePayloadBuffer.ToArray(), adBuffer.ToArray(), nonceBuffer);
 
@@ -284,6 +284,11 @@ namespace MessagePack.CryptoDto
                     default:
                         throw new CryptoDtoException("Mode not recognised");
                 }
+            }
+
+            private void Stuff()
+            {
+
             }
 
             public string GetChannelTag()
