@@ -19,7 +19,7 @@ namespace MessagePack.CryptoDto
             lock (channelStoreLock)
             {
                 if (channelStore.ContainsKey(channelTag))
-                    throw new CryptoDtoException("Key tag already exists in store.");
+                    throw new CryptoDtoException("Key tag already exists in store. (" + channelTag + ")");
                 channelStore[channelTag] = new CryptoDtoChannel(channelTag, receiveSequenceHistorySize);
             }
         }
@@ -29,7 +29,7 @@ namespace MessagePack.CryptoDto
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
-                    throw new CryptoDtoException("Key tag does not exist in store.");
+                    throw new CryptoDtoException("Key tag does not exist in store. (" + channelTag + ")");
 
                 return channelStore[channelTag].GetRemoteEndpointChannelConfig();
             }
@@ -40,7 +40,7 @@ namespace MessagePack.CryptoDto
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
-                    throw new CryptoDtoException("Key tag does not exist in store.");
+                    throw new CryptoDtoException("Key tag does not exist in store. (" + channelTag + ")");
 
                 return channelStore[channelTag].GetReceiveKey(mode);
             }
@@ -51,7 +51,7 @@ namespace MessagePack.CryptoDto
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
-                    throw new CryptoDtoException("Key tag does not exist in store.");
+                    throw new CryptoDtoException("Key tag does not exist in store. (" + channelTag + ")");
 
                 channelStore[channelTag].CheckReceivedSequence(sequenceReceived);
             }
@@ -62,7 +62,7 @@ namespace MessagePack.CryptoDto
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
-                    throw new CryptoDtoException("Key tag does not exist in store.");
+                    throw new CryptoDtoException("Key tag does not exist in store. (" + channelTag + ")");
 
                 return channelStore[channelTag].GetTransmitKey(mode, out transmitSequence);
             }
@@ -73,7 +73,7 @@ namespace MessagePack.CryptoDto
             lock (channelStoreLock)
             {
                 if (!channelStore.ContainsKey(channelTag))
-                    throw new CryptoDtoException("Key tag does not exist in store.");
+                    throw new CryptoDtoException("Key tag does not exist in store. (" + channelTag + ")");
                 channelStore.Remove(channelTag);
             }
         }

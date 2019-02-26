@@ -163,9 +163,12 @@ namespace MessagePack.CryptoDto
 
             public Deserializer(CryptoDtoChannelStore channelStore, ReadOnlySpan<byte> bytes)
             {
-                headerLength = Unsafe.ReadUnaligned<ushort>(ref MemoryMarshal.GetReference(bytes));                                 //.NET Standard 2.0 doesn't have BitConverter.ToUInt16(Span<T>)               
+                headerLength = Unsafe.ReadUnaligned<ushort>(ref MemoryMarshal.GetReference(bytes));             //.NET Standard 2.0 doesn't have BitConverter.ToUInt16(Span<T>)               
+                if(bytes.Length < (2 + headerLength))
+                    throw new CryptoDtoException("Not enough bytes to process packet.");
                 ReadOnlySpan<byte> headerDataBuffer = bytes.Slice(2, headerLength);
                 header = MessagePackSerializer.Deserialize<CryptoDtoHeaderDto>(headerDataBuffer.ToArray());
+                byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag, header.Mode);                 //This will throw exception if channel tag isn't in the store
 
                 switch (header.Mode)
                 {
@@ -181,8 +184,7 @@ namespace MessagePack.CryptoDto
                             ReadOnlySpan<byte> payloadBuffer = bytes.Slice(0, payloadLength);
 
                             ReadOnlySpan<byte> macBuffer = bytes.Slice(payloadLength, bytes.Length - payloadLength);
-                            byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag, header.Mode);
-
+                            
                             using (HMACSHA256 hmac = new HMACSHA256(receiveKey))
                             {
                                 var hash = hmac.ComputeHash(payloadBuffer.ToArray());
@@ -204,7 +206,6 @@ namespace MessagePack.CryptoDto
                             var nonceBuffer = new byte[12];
                             Array.Copy(BitConverter.GetBytes(header.Sequence), 0, nonceBuffer, 0, 4);
 
-                            byte[] receiveKey = channelStore.GetReceiveKey(header.ChannelTag, header.Mode);
                             var aead = new ChaCha20Poly1305(receiveKey);
                             ReadOnlySpan<byte> decryptedPayload = aead.Decrypt(aePayloadBuffer.ToArray(), adBuffer.ToArray(), nonceBuffer);
 
@@ -284,11 +285,6 @@ namespace MessagePack.CryptoDto
                     default:
                         throw new CryptoDtoException("Mode not recognised");
                 }
-            }
-
-            private void Stuff()
-            {
-
             }
 
             public string GetChannelTag()

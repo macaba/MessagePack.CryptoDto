@@ -6,7 +6,9 @@ namespace MessagePack.CryptoDto
 {
     public enum CryptoDtoMode
     {
-        HMAC_SHA256 = 0,
-        AEAD_ChaCha20Poly1305 = 1
+        Undefined = 0,
+        None = 1,
+        HMAC_SHA256 = 2,
+        AEAD_ChaCha20Poly1305 = 3
     }
 }
