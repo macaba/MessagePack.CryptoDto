@@ -8,7 +8,7 @@ MessagePack.CryptoDto is a library that authenticates and optionally encrypts/de
 
 The secret shared key (unique per client-server connection) is established out-of-band, typically with a HTTPS-secured REST API authentication endpoint.
 
-There are 2 modes supported currently: 
+There are 2 modes: 
 
 CryptoDtoMode.None mode:
 * For clear messages during development (using no encryption at all)
