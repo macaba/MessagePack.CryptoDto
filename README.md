@@ -4,7 +4,7 @@ The C# MessagePack library by neucc is fast. You can combine MessagePack with li
 
 What about public facing endpoints?
 
-MessagePack.CryptoDto is a library that authenticates and optionally encrypts/decrypts DTO messages using HMAC or AEAD techniques for modern & fast security.
+MessagePack.CryptoDto is a library that authenticates and encrypts/decrypts DTO messages using AEAD for modern & fast security.
 
 The secret shared key (unique per client-server connection) is established out-of-band, typically with a HTTPS-secured REST API authentication endpoint.
 
