@@ -10,11 +10,12 @@ The secret shared key (unique per client-server connection) is established out-o
 
 There are 2 modes supported currently: 
 
-AEAD mode:
-* For fully encrypted and authenticated messages (using ChaChaPoly1305)
+CryptoDtoMode.None mode:
+* For clear messages during development (using no encryption at all)
+* Will currently throw NotImplementedException
 
-HMAC mode:
-* For clear but authenticated messages (using HMACSHA256)
+CryptoDtoMode.ChaCha20Poly1305:
+* For fully encrypted and authenticated messages (using ChaChaPoly1305)
 
 There is protection against duplication and replay attacks.
 
