@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NaCl.Core;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 
@@ -19,6 +20,11 @@ namespace MessagePack.CryptoDto
         public string ChannelTag { get; private set; }
         public DateTime LastTransmitUtc { get; private set; }
         public DateTime LastReceiveUtc { get; private set; }
+
+        private ChaCha20Poly1305 transmit = null;
+        internal ChaCha20Poly1305 TransmitChaCha20Poly1305 { get { if (transmit == null) { transmit = new ChaCha20Poly1305(aeadTransmitKey); } return transmit; } }
+        private ChaCha20Poly1305 receive = null;
+        internal ChaCha20Poly1305 ReceiveChaCha20Poly1305 { get { if (receive == null) { receive = new ChaCha20Poly1305(aeadReceiveKey); } return receive; } }
 
         public CryptoDtoChannel(string channelTag, int receiveSequenceHistorySize = 10)
         {
@@ -68,7 +74,7 @@ namespace MessagePack.CryptoDto
             }
         }
 
-        public ReadOnlySpan<byte> GetReceiveKey(CryptoDtoMode mode)
+        internal ReadOnlySpan<byte> GetReceiveKey(CryptoDtoMode mode)
         {
             lock (channelLock)
             {
@@ -82,7 +88,7 @@ namespace MessagePack.CryptoDto
             }
         }
 
-        public void CheckReceivedSequence(ulong sequenceReceived)
+        internal void CheckReceivedSequence(ulong sequenceReceived)
         {
             lock (channelLock)
             {
@@ -107,7 +113,7 @@ namespace MessagePack.CryptoDto
             }
         }
 
-        public bool IsReceivedSequenceAllowed(ulong sequenceReceived)
+        internal bool IsReceivedSequenceAllowed(ulong sequenceReceived)
         {
             lock (channelLock)
             {
@@ -137,7 +143,7 @@ namespace MessagePack.CryptoDto
             }
         }
 
-        public ReadOnlySpan<byte> GetTransmitKey(CryptoDtoMode mode, out ulong sequenceToSend)
+        internal ReadOnlySpan<byte> GetTransmitKey(CryptoDtoMode mode, out ulong sequenceToSend)
         {
             lock (channelLock)
             {

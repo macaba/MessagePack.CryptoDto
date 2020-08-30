@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.6;netstandard2.0;netstandard2.1;netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Unix'">netstandard1.6;netstandard2.0;netstandard2.1;netcoreapp3.1;netcoreapp5.0;net45;net48</TargetFrameworks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Version>1.2.0</Version>
+    <Authors>David De Smet</Authors>
+    <Company />
+    <Description>A managed-only cryptography library for .NET which provides modern cryptographic primitives.</Description>
+    <Copyright>Copyright © 2018-2020 David De Smet</Copyright>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageTags>NaCl cryptography dotnet dotnet-core netstandard</PackageTags>
+    <PackageProjectUrl>https://github.com/idaviddesmet/NaCl.Core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/idaviddesmet/NaCl.Core.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>master</RepositoryBranch>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(TargetFramework) != 'netcoreapp3.1' AND $(TargetFramework) != 'netstandard2.1'">
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="$(TargetFramework) == 'netcoreapp3.0' OR $(TargetFramework) == 'netcoreapp3.1' OR $(TargetFramework) == 'netcoreapp5.0'">
+    <DefineConstants>FCL_BITOPS;INTRINSICS;SPANSTACKALLOC</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <Target Name="LogDebugInfo">
+    <Message Text="Building for $(TargetFramework) on $(OS)" Importance="High" />
+  </Target>
+
+</Project>

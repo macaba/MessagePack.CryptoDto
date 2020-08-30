@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessagePack.CryptoDto", "MessagePack.CryptoDto\MessagePack.CryptoDto.csproj", "{48CD13C1-59BB-4AE0-918E-B00895922E3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessagePack.CryptoDto", "MessagePack.CryptoDto\MessagePack.CryptoDto.csproj", "{48CD13C1-59BB-4AE0-918E-B00895922E3B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessagePack.CryptoDto.Benchmarks", "MessagePack.CryptoDto.Benchmarks\MessagePack.CryptoDto.Benchmarks.csproj", "{FBA6FBAA-8382-4BD4-BA68-4728C115E7A4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{3A2F19BE-205E-4B91-9153-BA4F32686530}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NaCl.Core", "Libraries\NaCl.Core\NaCl.Core.csproj", "{B24FF11F-2040-48A8-AAEA-211647D0AD00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +21,20 @@ Global
 		{48CD13C1-59BB-4AE0-918E-B00895922E3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48CD13C1-59BB-4AE0-918E-B00895922E3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48CD13C1-59BB-4AE0-918E-B00895922E3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBA6FBAA-8382-4BD4-BA68-4728C115E7A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBA6FBAA-8382-4BD4-BA68-4728C115E7A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBA6FBAA-8382-4BD4-BA68-4728C115E7A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBA6FBAA-8382-4BD4-BA68-4728C115E7A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B24FF11F-2040-48A8-AAEA-211647D0AD00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B24FF11F-2040-48A8-AAEA-211647D0AD00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B24FF11F-2040-48A8-AAEA-211647D0AD00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B24FF11F-2040-48A8-AAEA-211647D0AD00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B24FF11F-2040-48A8-AAEA-211647D0AD00} = {3A2F19BE-205E-4B91-9153-BA4F32686530}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B20D400-1595-4A15-B2D0-DD7607595B13}
