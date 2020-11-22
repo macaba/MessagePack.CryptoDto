@@ -11,6 +11,7 @@ namespace MessagePack.CryptoDto
 {
     public static class CryptoDtoDeserializer
     {
+        #region CryptoDtoChannelStore methods
         public static Deserializer Deserialize(CryptoDtoChannelStore channelStore, ReadOnlyMemory<byte> bytes)
         {
             var plaintextBuffer = new ArrayBufferWriter<byte>();
@@ -36,7 +37,9 @@ namespace MessagePack.CryptoDto
             var channel = channelStore.GetChannel(header.ChannelTag);
             return new Deserializer(channel, headerLength, header, bytes.Span, true, plaintextBuffer);
         }
+        #endregion
 
+        #region CryptoDtoChannel methods
         public static Deserializer Deserialize(CryptoDtoChannel channel, ReadOnlyMemory<byte> bytes)
         {
             var plaintextBuffer = new ArrayBufferWriter<byte>();
@@ -64,6 +67,7 @@ namespace MessagePack.CryptoDto
                 throw new CryptographicException("Channel Tag doesn't match provided Channel");
             return new Deserializer(channel, headerLength, header, bytes.Span, true, plaintextBuffer);
         }
+        #endregion
 
         public ref struct Deserializer
         {

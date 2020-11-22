@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries\NaCl.Core\NaCl.Core.csproj" />
+    <ProjectReference Include="..\NaCl.Core\NaCl.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="$(TargetFramework) == 'netcoreapp3.0' OR $(TargetFramework) == 'netcoreapp3.1' OR $(TargetFramework) == 'netcoreapp5.0'">

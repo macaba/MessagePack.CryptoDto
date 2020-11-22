@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MessagePack.CryptoDto
+namespace MessagePack.CryptoDto.Managed
 {
     public class CryptoDtoSerializer
     {
@@ -39,6 +39,13 @@ namespace MessagePack.CryptoDto
             return Serialize(channel, mode, obj);
         }
 
+        // Hint for callers using ArrayBufferWriter<byte> - output.WrittenSpan contains the serialised data
+        public void Serialize<T>(IBufferWriter<byte> output, CryptoDtoChannelStore channelStore, string channelTag, CryptoDtoMode mode, T obj)
+        {
+            var channel = channelStore.GetChannel(channelTag);
+            Serialize(output, channel, mode, obj);
+        }
+
         public byte[] Serialize<T>(CryptoDtoChannel channel, CryptoDtoMode mode, T obj)
         {
             ArrayBufferWriter<byte> arrayBufferWriter = new ArrayBufferWriter<byte>();
@@ -46,6 +53,7 @@ namespace MessagePack.CryptoDto
             return arrayBufferWriter.WrittenSpan.ToArray();
         }
 
+        // Hint for callers using ArrayBufferWriter<byte> - output.WrittenSpan contains the serialised data
         public void Serialize<T>(IBufferWriter<byte> output, CryptoDtoChannel channel, CryptoDtoMode mode, T dto)
         {
             lock (bufferLock)
@@ -57,18 +65,20 @@ namespace MessagePack.CryptoDto
             }
         }
 
-        public byte[] Pack(CryptoDtoChannelStore channelStore, string channelTag, CryptoDtoMode mode, ReadOnlySpan<byte> dtoNameBuffer, ReadOnlySpan<byte> dtoBuffer)
-        {
-            var channel = channelStore.GetChannel(channelTag);
-            return Pack(channel, mode, dtoNameBuffer, dtoBuffer);
-        }
+        //[Obsolete]
+        //public byte[] Pack(CryptoDtoChannelStore channelStore, string channelTag, CryptoDtoMode mode, ReadOnlySpan<byte> dtoNameBuffer, ReadOnlySpan<byte> dtoBuffer)
+        //{
+        //    var channel = channelStore.GetChannel(channelTag);
+        //    return Pack(channel, mode, dtoNameBuffer, dtoBuffer);
+        //}
 
-        public byte[] Pack(CryptoDtoChannel channel, CryptoDtoMode mode, ReadOnlySpan<byte> dtoNameBuffer, ReadOnlySpan<byte> dtoBuffer)
-        {
-            ArrayBufferWriter<byte> arrayBufferWriter = new ArrayBufferWriter<byte>();
-            Pack(arrayBufferWriter, channel, mode, dtoNameBuffer, dtoBuffer);
-            return arrayBufferWriter.WrittenSpan.ToArray();
-        }
+        //[Obsolete]
+        //public byte[] Pack(CryptoDtoChannel channel, CryptoDtoMode mode, ReadOnlySpan<byte> dtoNameBuffer, ReadOnlySpan<byte> dtoBuffer)
+        //{
+        //    ArrayBufferWriter<byte> arrayBufferWriter = new ArrayBufferWriter<byte>();
+        //    Pack(arrayBufferWriter, channel, mode, dtoNameBuffer, dtoBuffer);
+        //    return arrayBufferWriter.WrittenSpan.ToArray();
+        //}
 
         public void Pack(IBufferWriter<byte> output, CryptoDtoChannel channel, CryptoDtoMode mode, ReadOnlySpan<byte> dtoNameBuffer, ReadOnlySpan<byte> dtoBuffer)
         {

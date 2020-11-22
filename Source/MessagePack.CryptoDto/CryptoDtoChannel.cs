@@ -13,9 +13,9 @@ namespace MessagePack.CryptoDto
 
         private readonly byte[] aeadReceiveKey;
 
-        private ulong[] receiveSequenceHistory;
+        private readonly ulong[] receiveSequenceHistory;
         private int receiveSequenceHistoryDepth;
-        private int receiveSequenceSizeMaxSize;
+        private readonly int receiveSequenceSizeMaxSize;
 
         public string ChannelTag { get; private set; }
         public DateTime LastTransmitUtc { get; private set; }
@@ -67,7 +67,7 @@ namespace MessagePack.CryptoDto
             {
                 return new CryptoDtoChannelConfigDto()
                 {
-                    ChannelTag = string.Copy(ChannelTag),
+                    ChannelTag = ChannelTag,
                     AeadReceiveKey = aeadTransmitKey.ToArray(),
                     AeadTransmitKey = aeadReceiveKey.ToArray()      //Swap the order for the remote endpoint
                 };

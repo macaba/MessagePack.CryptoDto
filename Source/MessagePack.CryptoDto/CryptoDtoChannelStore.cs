@@ -6,7 +6,7 @@ namespace MessagePack.CryptoDto
     public class CryptoDtoChannelStore
     {
         readonly object channelStoreLock = new object();
-        private Dictionary<string, CryptoDtoChannel> channelStore;
+        private readonly Dictionary<string, CryptoDtoChannel> channelStore;
 
         public CryptoDtoChannelStore()
         {
